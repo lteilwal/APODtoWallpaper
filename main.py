@@ -10,6 +10,8 @@ flags = SPIF_UPDATEINIFILE | SPIF_SENDCHANGE
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATE_FILE = os.path.join(BASE_DIR, "lastDate.txt")
 
+LOG_FILE = os.path.join(BASE_DIR, "run.log")
+
 API_KEY="JnAH4b8Dh2z3bkYpRofpHBgSHWmBK3jbgfs8W1ZO"
 params={
     "api_key":API_KEY,
@@ -56,13 +58,16 @@ def dateCheck():
     else:
         last=""
     if today==last:
-        exit()
+        return
 
 def setDate():
     with open(DATE_FILE, "w") as f:
         f.write(data["date"])
 
 if __name__ == "__main__":
+    with open(LOG_FILE, "a") as f:
+        f.write(f"Ran at {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+
     response=requests.get(url, params=params,timeout=10)
     response.raise_for_status()
     data=response.json()
