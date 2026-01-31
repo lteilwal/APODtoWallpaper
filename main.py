@@ -2,16 +2,13 @@ import requests
 import ctypes
 import os
 import time
-from PIL import Image
-from PIL import ImageDraw
-from PIL import ImageFont
-from PIL import ImageFilter
-
 
 SPI_SETDESKWALLPAPER = 20
 SPIF_UPDATEINIFILE = 1
 SPIF_SENDCHANGE = 2
 flags = SPIF_UPDATEINIFILE | SPIF_SENDCHANGE
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATE_FILE = os.path.join(BASE_DIR, "lastDate.txt")
 
 API_KEY="JnAH4b8Dh2z3bkYpRofpHBgSHWmBK3jbgfs8W1ZO"
 params={
@@ -19,8 +16,8 @@ params={
     "thumbs": True
 }
 url="https://api.nasa.gov/planetary/apod"
-archivedir="archive"
-os.makedirs(archivedir,exist_ok=True)
+archivedir = os.path.join(BASE_DIR, "archive")
+os.makedirs(archivedir, exist_ok=True)
 
 def getURL(isHiDef):
     if data["media_type"]=="image":
@@ -51,21 +48,36 @@ def saveImage():
     with open(f"{filePath}","wb") as f:
         f.write(imageDataTemp)
 
+def dateCheck():
+    today=data["date"]
+    if os.path.exists(DATE_FILE):
+        with open(DATE_FILE) as f:
+            last=f.read().strip()
+    else:
+        last=""
+    if today==last:
+        exit()
+
+def setDate():
+    with open(DATE_FILE, "w") as f:
+        f.write(data["date"])
+
 if __name__ == "__main__":
     response=requests.get(url, params=params,timeout=10)
     response.raise_for_status()
     data=response.json()
+    dateCheck()
 
     imageData=requests.get(getURL(isHiDef=True),timeout=10).content
 
-    with open("apod.jpg","wb") as f:
+    imagePath = os.path.join(BASE_DIR, "apod.jpg")
+
+    with open(imagePath, "wb") as f:
         f.write(imageData)
 
-    basePath=os.path.dirname(os.path.abspath(__file__))
-    imagePath = os.path.join(basePath,"apod.jpg")
     saveImage()
-
-    img=Image.open("apod.jpg").convert("RGB")
 
     # time.sleep(0.5)
     setWallp()
+
+    setDate()
