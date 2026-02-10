@@ -12,7 +12,7 @@ DATE_FILE = os.path.join(BASE_DIR, "lastDate.txt")
 
 LOG_FILE = os.path.join(BASE_DIR, "run.log")
 
-API_KEY="JnAH4b8Dh2z3bkYpRofpHBgSHWmBK3jbgfs8W1ZO"
+API_KEY=""
 params={
     "api_key":API_KEY,
     "thumbs": True
